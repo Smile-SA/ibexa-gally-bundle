@@ -1,0 +1,15 @@
+ibexa_gally:
+    credentials:
+        email: example@example.com
+        password: changeMe!
+        host: https://gally.local/
+    curl_options:
+        curl_resolve: gally.local:443:172.16.0.1
+    debug: false
+    indexable_content:
+        content_types:
+            - test_page
+        field_types:
+            - ezstring
+            - ezrichtext
+            - eztext

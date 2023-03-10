@@ -1,0 +1,111 @@
+services:
+    Smile\Ibexa\Gally\Api\Catalog\Catalog:
+        arguments:
+            - '@Smile\Ibexa\Gally\Service\Client\Client'
+
+    Smile\Ibexa\Gally\Api\Index\Index:
+        arguments:
+            - '@Smile\Ibexa\Gally\Service\Client\Client'
+
+    Smile\Ibexa\Gally\Api\Metadata\Metadata:
+        arguments:
+            - '@Smile\Ibexa\Gally\Service\Client\Client'
+
+    Smile\Ibexa\Gally\Api\Search\Search:
+        arguments:
+            - '@Smile\Ibexa\Gally\Service\Client\Client'
+            - '@logger'
+
+    Smile\Ibexa\Gally\Api\SourceField\SourceField:
+        arguments:
+            - '@Smile\Ibexa\Gally\Service\Client\Client'
+            - '@Smile\Ibexa\Gally\Api\Metadata\Metadata'
+
+    Smile\Ibexa\Gally\Command\GallyIndexCommand:
+        tags: [ 'console.command' ]
+        arguments:
+            - '@Smile\Ibexa\Gally\Service\Index\IndexDocument'
+
+    Smile\Ibexa\Gally\Command\GallyPurgeCommand:
+        tags: [ 'console.command' ]
+        arguments:
+            - '@Smile\Ibexa\Gally\Service\GallyStructure\GallyStructureManager'
+
+    Smile\Ibexa\Gally\Command\GallyUpdateCommand:
+        tags: [ 'console.command' ]
+        arguments:
+            - '@Smile\Ibexa\Gally\Service\GallyStructure\GallyStructureManager'
+
+    Smile\Ibexa\Gally\EventSubscriber\OnCopySubscriber:
+        tags:
+            - { name: kernel.event_subscriber }
+        arguments:
+            - '@Smile\Ibexa\Gally\Service\Index\IndexDocument'
+            - '@service_container'
+
+    Smile\Ibexa\Gally\EventSubscriber\OnPublishSubscriber:
+        tags:
+            - { name: kernel.event_subscriber }
+        arguments:
+            - '@Smile\Ibexa\Gally\Service\Index\IndexDocument'
+            - '@service_container'
+
+    Smile\Ibexa\Gally\EventSubscriber\OnTrashSubscriber:
+        tags:
+            - { name: kernel.event_subscriber }
+        arguments:
+            - '@Smile\Ibexa\Gally\Service\Index\IndexDocument'
+            - '@service_container'
+            - '@logger'
+
+    Smile\Ibexa\Gally\Service\Client\Authentication:
+        arguments:
+            - '@Smile\Ibexa\Gally\Service\Client\CredentialProvider'
+            - '@Smile\Ibexa\Gally\Service\Client\CurlOptionsProvider'
+
+    Smile\Ibexa\Gally\Service\Client\Client:
+        arguments:
+            - '@Smile\Ibexa\Gally\Service\Client\CredentialProvider'
+            - '@Smile\Ibexa\Gally\Service\Client\CurlOptionsProvider'
+            - '@Smile\Ibexa\Gally\Service\Client\Authentication'
+            - '@logger'
+            - '%ibexa_gally.debug%'
+
+    Smile\Ibexa\Gally\Service\Client\CredentialProvider:
+        arguments:
+            - '%ibexa_gally.credentials%'
+
+    Smile\Ibexa\Gally\Service\Client\CurlOptionsProvider:
+        arguments:
+            - '%ibexa_gally.curl_options%'
+
+    Smile\Ibexa\Gally\Service\GallyStructure\GallyStructureManager:
+        arguments:
+            - '@Smile\Ibexa\Gally\Api\Metadata\Metadata'
+            - '@Smile\Ibexa\Gally\Api\Index\Index'
+            - '@Smile\Ibexa\Gally\Api\Catalog\Catalog'
+            - '@Smile\Ibexa\Gally\Api\SourceField\SourceField'
+            - '@Smile\Ibexa\Gally\Service\Index\IndexableContentProvider'
+            - '@Smile\Ibexa\Gally\Service\Metadata\SourceFieldMappingProvider'
+            - '@ibexa.api.service.content_type'
+            - '@service_container'
+
+    Smile\Ibexa\Gally\Service\Index\IndexableContentProvider:
+        arguments:
+            - '%ibexa_gally.indexable_content%'
+
+    Smile\Ibexa\Gally\Service\Index\IndexDocument:
+        arguments:
+            - '@Smile\Ibexa\Gally\Api\Index\Index'
+            - '@Smile\Ibexa\Gally\Api\Catalog\Catalog'
+            - '@Smile\Ibexa\Gally\Service\Index\IndexableContentProvider'
+            - '@ibexa.api.service.content_type'
+            - '@ibexa.api.service.search'
+
+    Smile\Ibexa\Gally\Service\Metadata\SourceFieldMappingProvider:
+        arguments:
+            - '%ibexa_gally.source_field_mapping%'
+
+    Smile\Ibexa\Gally\Service\Search\Search:
+        arguments:
+            - '@Smile\Ibexa\Gally\Api\Search\Search'

@@ -1,0 +1,45 @@
+{
+  "name": "smile/ibexa-gally-bundle",
+  "description": "Ibexa bundle to use Gally to index content and search",
+  "type": "symfony-bundle",
+  "keywords": ["REST", "GraphQL", "API", "JSON-LD", "Elasticsearch", "JSONAPI", "OpenAPI", "HAL", "Swagger", "E-commerce", "Ibexa"],
+  "license": "OSL-3.0",
+  "authors": [
+    {
+      "name": "Blaise Nizzi",
+      "email": "blaise.nizzi@smile.fr"
+    }
+  ],
+  "require": {
+    "php": "^8",
+    "ibexa/core": "^4.4",
+    "gally/gally-php-rest-sdk": "^1.0",
+    "ext-curl": "*",
+    "guzzlehttp/guzzle": "7.5.0 as 6.5.8"
+  },
+  "autoload": {
+    "psr-0": {
+      "": "src/"
+    },
+    "psr-4": {
+      "Smile\\Ibexa\\Gally\\": "src/"
+    }
+  },
+  "config": {
+    "preferred-install": {
+      "*": "dist"
+    },
+    "sort-packages": true,
+    "allow-plugins": {
+      "composer/package-versions-deprecated": true,
+      "phpstan/extension-installer": true,
+      "symfony/flex": true,
+      "symfony/runtime": true
+    }
+  },
+  "extra": {
+    "symfony": {
+      "require": "^5.4"
+    }
+  }
+}
