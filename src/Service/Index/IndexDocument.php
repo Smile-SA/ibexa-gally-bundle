@@ -42,7 +42,8 @@ class IndexDocument
         $localizedCatalogsCode = $this->catalog->getLocalizedCatalogsCode();
 
         foreach ($localizedCatalogs as $key => $localizedCatalog) {
-            $code = substr($localizedCatalogsCode[$key], -6);
+            $catalogCode = explode('_', $localizedCatalogsCode[$key]);
+            $code = $catalogCode[array_key_last($catalogCode)];
             $logFunction('Load content type groups', OutputInterface::VERBOSITY_VERBOSE);
             $contentTypeGroups = $this->contentTypeService->loadContentTypeGroups();
 
@@ -82,12 +83,12 @@ class IndexDocument
                         /** @var Location $location */
                         $location   = $searchHit->valueObject;
                         $content    = $location->getContent();
-                        if ($content->getDefaultLanguageCode() === $code) {
+                        if (in_array($code, $content->getVersionInfo()->languageCodes)) {
                             $contents[] = $content;
                         }
                     }
                     $logFunction('Sent ' . count($contents) . ' contents ' . $contentType->identifier);
-                    $this->sendIbexaData($indexName, $contents, $fieldTypeConfig);
+                    $this->sendIbexaData($indexName, $contents, $fieldTypeConfig, $code);
 
                     $logFunction(
                         'Install index ' . $indexName
@@ -128,15 +129,17 @@ class IndexDocument
      * @param string $indexName
      * @param array $contents
      * @param $fieldTypeConfig
-     *
+     * @param string|null $language language CODE
      * @return void
      */
-    public function sendIbexaData(string $indexName, array $contents, $fieldTypeConfig): void
+    public function sendIbexaData(string $indexName, array $contents, $fieldTypeConfig, string $language = null): void
     {
         $documents = [];
         /** @var Content $content */
         foreach ($contents as $content) {
-            $language = $content->getDefaultLanguageCode();
+            if ($language === null) {
+                $language = $content->getDefaultLanguageCode();
+            }
             $obj = new \stdClass();
             $obj->id = $content->id;
             $obj->path = $content->contentInfo->getMainLocation()->pathString;
