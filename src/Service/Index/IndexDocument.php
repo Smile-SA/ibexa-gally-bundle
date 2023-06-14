@@ -135,20 +135,49 @@ class IndexDocument
     /**
      * Index a list of content on a siteaccess
      *
-     * @param string $siteaccess
-     * @param ...$contents
+     * @param Content $content content
+     * @param array|null $languages if languages know else every language of the content
      *
      * @return void
      */
-    public function index(string $siteaccess, ...$contents): void
+    public function index(Content $content, array $languages = null): void
     {
+        if ($languages === null) {
+            $languages = $content->getVersionInfo()->languageCodes;
+        }
+        $siteaccesses = $this->container->getParameter('ibexa.site_access.list');
+        $siteaccessGroups = $this->container->getParameter('ibexa.site_access.groups');
+        $contentSubtree = $content->getVersionInfo()->getContentInfo()->getMainLocation()->pathString;
+        $siteaccessesToIndex = [];
+        foreach ($siteaccessGroups as $group => $siteaccesss) {
+            if ($this->container->hasParameter("ibexa.site_access.config.$group.subtree_paths.content")) {
+                $subtree = $this->container->getParameter("ibexa.site_access.config.$group.subtree_paths.content");
+                if (str_contains($contentSubtree, $subtree)) {
+                    foreach ($siteaccesss as $siteaccess) {
+                        $siteaccessesToIndex[] = $siteaccess;
+                    }
+                }
+            }
+        }
+        foreach ($siteaccesses as $siteaccess) {
+            if ($this->container->hasParameter("ibexa.site_access.config.$siteaccess.subtree_paths.content")) {
+                $subtree = $this->container->getParameter("ibexa.site_access.config.$siteaccess.subtree_paths.content");
+                if (str_contains($contentSubtree, $subtree)) {
+                    $siteaccessesToIndex[] = $siteaccess;
+                }
+            }
+        }
+
         $fieldTypeConfig = $this->indexableContentProvider->getFieldTypes();
 
-        $contentType = $contents[0]->getContentType();
-        $language    = $contents[0]->getDefaultLanguageCode();
-        $indexName   = 'gally_' . $siteaccess . '_' . strtolower($language) . '_' . $contentType->identifier;
+        $contentType = $content->getContentType();
 
-        $this->sendIbexaData($indexName, $contents, $fieldTypeConfig);
+        foreach ($siteaccessesToIndex as $siteaccess) {
+            foreach ($languages as $language) {
+                $indexName   = 'gally_' . $siteaccess . '_' . strtolower($language) . '_' . $contentType->identifier;
+                $this->sendIbexaData($indexName, [$content], $fieldTypeConfig, $language);
+            }
+        }
     }
 
     /**

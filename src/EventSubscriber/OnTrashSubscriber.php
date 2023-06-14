@@ -13,7 +13,6 @@ class OnTrashSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly IndexDocument $indexDocument,
-        private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -40,10 +39,9 @@ class OnTrashSubscriber implements EventSubscriberInterface
         }
     }
 
-    public function onRecover(RecoverEvent $event)
+    public function onRecover(RecoverEvent $event): void
     {
         $this->indexDocument->index(
-            $this->container->getParameter('ibexa.site_access.default'),
             $event->getTrashItem()->getContent()
         );
     }
