@@ -208,6 +208,32 @@ class IndexDocument
                     $text = null;
                     $class = \get_class($value);
                     switch ($class) {
+                        case 'Ibexa\Core\FieldType\Date\Value':
+                            /** @var \Ibexa\Core\FieldType\Date\Value $value */
+                            $date = $value->date->format('Y-m-d H:i:s');
+                            $obj->$typeIdentifier = $date;
+                            break;
+                        case 'Ibexa\Core\FieldType\DateAndTime\Value':
+                            /** @var \Ibexa\Core\FieldType\DateAndTime\Value $value */
+                            $datetime = $value->value->format('Y-m-d H:i:s');
+                            $obj->$typeIdentifier = $datetime;
+                            break;
+                        case 'Ibexa\Core\FieldType\Float\Value':
+                            /** @var \Ibexa\Core\FieldType\Float\Value $value */
+                            $float = floatval($value->value);
+                            $obj->$typeIdentifier = $float;
+                            break;
+                        case 'Ibexa\Core\FieldType\Integer\Value':
+                            /** @var \Ibexa\Core\FieldType\Integer\Value $value */
+                            $int = intval($value->value);
+                            $obj->$typeIdentifier = $int;
+                            break;
+                            //TODO pas necessaire ?
+                        case 'Ibexa\Core\FieldType\Checkbox\Value':
+                            /** @var \Ibexa\Core\FieldType\Checkbox\Value $value */
+                            $bool = $value->bool;
+                            $obj->$typeIdentifier = $bool;
+                            break;
                         case 'Ibexa\Core\FieldType\TextLine\Value':
                         case 'Ibexa\Core\FieldType\TextBlock\Value':
                             /** @var \Ibexa\Core\FieldType\TextBlock\Value $value */
@@ -219,6 +245,7 @@ class IndexDocument
                             $obj->$typeIdentifier = $value->xml->textContent;
                             break;
                         default:
+                            //TODO desactiver le par défaut ?
                             $obj->$typeIdentifier = $content->getFieldValue($typeIdentifier);
                     }
                 }
