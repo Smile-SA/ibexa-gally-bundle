@@ -41,21 +41,18 @@ services:
             - { name: kernel.event_subscriber }
         arguments:
             - '@Smile\Ibexa\Gally\Service\Index\IndexDocument'
-            - '@service_container'
 
     Smile\Ibexa\Gally\EventSubscriber\OnPublishSubscriber:
         tags:
             - { name: kernel.event_subscriber }
         arguments:
             - '@Smile\Ibexa\Gally\Service\Index\IndexDocument'
-            - '@service_container'
 
     Smile\Ibexa\Gally\EventSubscriber\OnTrashSubscriber:
         tags:
             - { name: kernel.event_subscriber }
         arguments:
             - '@Smile\Ibexa\Gally\Service\Index\IndexDocument'
-            - '@service_container'
             - '@logger'
 
     Smile\Ibexa\Gally\Service\Client\Authentication:
@@ -101,6 +98,7 @@ services:
             - '@Smile\Ibexa\Gally\Service\Index\IndexableContentProvider'
             - '@ibexa.api.service.content_type'
             - '@ibexa.api.service.search'
+            - '@service_container'
 
     Smile\Ibexa\Gally\Service\Metadata\SourceFieldMappingProvider:
         arguments:

@@ -15,6 +15,7 @@ use Smile\Ibexa\Gally\Service\Index\IndexableContentProvider;
 use Smile\Ibexa\Gally\Service\Metadata\SourceFieldMappingProvider;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Intl\Languages;
 
 /**
  * Manage the Gally structure (update and purge)
@@ -95,8 +96,19 @@ class GallyStructureManager
                 $logFunction('Create langue ' . $language);
                 // TODO : use API to change language code format
                 // Gally format : en_GB, Ibexa format: eng-GB
-                $code = substr($language, 0, 2) . substr($language, -3);
-                $code = str_replace('-', '_', $code);
+                $codeL = \Locale::getPrimaryLanguage($language);
+                $codeR = \Locale::getRegion($language);
+                if (strlen($codeL) === 3) {
+                    if (Languages::alpha3CodeExists($codeL)) {
+                        $codeL = Languages::getAlpha2Code($codeL);
+                    } else {
+                        $codeL = substr($codeL, 0, 2);
+                    }
+                }
+                $code = $codeL
+                    . "_"
+                    . $codeR;
+                $logFunction('Create langue ' . $language . ' code : ' . $code);
                 $this->catalog->createLocalizedCatalogIfNotExists(
                     new LocalizedCatalog([
                         'name' => $catalog . ' ' . $language,

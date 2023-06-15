@@ -11,7 +11,6 @@ class OnPublishSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly IndexDocument $indexDocument,
-        private readonly ContainerInterface $container,
     ) {
     }
 
@@ -25,11 +24,11 @@ class OnPublishSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function onPublishVersion(PublishVersionEvent $event)
+    public function onPublishVersion(PublishVersionEvent $event): void
     {
         $this->indexDocument->index(
-            $this->container->getParameter('ibexa.site_access.default'),
-            $event->getContent()
+            $event->getContent(),
+            $event->getTranslations()
         );
     }
 }

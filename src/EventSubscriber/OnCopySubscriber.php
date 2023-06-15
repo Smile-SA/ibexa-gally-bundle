@@ -11,7 +11,6 @@ class OnCopySubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly IndexDocument $indexDocument,
-        private readonly ContainerInterface $container,
     ) {
     }
 
@@ -25,10 +24,9 @@ class OnCopySubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function onCopyContent(CopyContentEvent $event)
+    public function onCopyContent(CopyContentEvent $event): void
     {
         $this->indexDocument->index(
-            $this->container->getParameter('ibexa.site_access.default'),
             $event->getContent()
         );
     }
