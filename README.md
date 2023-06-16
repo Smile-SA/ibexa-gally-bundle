@@ -3,6 +3,10 @@
 Ibexa Gally is a bundle that can index Ibexa contents in Gally to use the Gally searchandising engine.
 You can choose which content types to index, content are auto index in Gally.
 
+## Important information
+
+Make sure Ibexa language code use format : 3letters-2LETTERS examples : `fre-FR`
+
 ## Features
 
 - Auto index content on Gally
