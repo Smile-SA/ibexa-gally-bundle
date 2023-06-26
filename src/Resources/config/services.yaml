@@ -41,12 +41,14 @@ services:
             - { name: kernel.event_subscriber }
         arguments:
             - '@Smile\Ibexa\Gally\Service\Index\IndexDocument'
+            - '@logger'
 
     Smile\Ibexa\Gally\EventSubscriber\OnPublishSubscriber:
         tags:
             - { name: kernel.event_subscriber }
         arguments:
             - '@Smile\Ibexa\Gally\Service\Index\IndexDocument'
+            - '@logger'
 
     Smile\Ibexa\Gally\EventSubscriber\OnTrashSubscriber:
         tags:
@@ -57,6 +59,34 @@ services:
             - '@logger'
 
     Smile\Ibexa\Gally\EventSubscriber\OnMoveSubscriber:
+        tags:
+            - { name: kernel.event_subscriber }
+        arguments:
+            - '@Smile\Ibexa\Gally\Service\Index\IndexDocument'
+            - '@logger'
+
+    Smile\Ibexa\Gally\EventSubscriber\OnSwapSubscriber:
+        tags:
+            - { name: kernel.event_subscriber }
+        arguments:
+            - '@Smile\Ibexa\Gally\Service\Index\IndexDocument'
+            - '@logger'
+
+    Smile\Ibexa\Gally\EventSubscriber\OnDeleteTranslationSubscriber:
+        tags:
+            - { name: kernel.event_subscriber }
+        arguments:
+            - '@Smile\Ibexa\Gally\Service\Index\IndexDocument'
+            - '@logger'
+
+    Smile\Ibexa\Gally\EventSubscriber\OnHideSubscriber:
+        tags:
+            - { name: kernel.event_subscriber }
+        arguments:
+            - '@Smile\Ibexa\Gally\Service\Index\IndexDocument'
+            - '@logger'
+
+    Smile\Ibexa\Gally\EventSubscriber\OnRevealSubscriber:
         tags:
             - { name: kernel.event_subscriber }
         arguments:
@@ -107,6 +137,7 @@ services:
             - '@ibexa.api.service.content_type'
             - '@ibexa.api.service.search'
             - '@ibexa.api.service.content'
+            - '@ibexa.api.service.location'
             - '@service_container'
 
     Smile\Ibexa\Gally\Service\Metadata\SourceFieldMappingProvider:

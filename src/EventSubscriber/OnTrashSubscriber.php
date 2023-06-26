@@ -2,8 +2,8 @@
 
 namespace Smile\Ibexa\Gally\EventSubscriber;
 
+use Ibexa\Contracts\Core\Repository\Events\Trash\BeforeTrashEvent;
 use Ibexa\Contracts\Core\Repository\Events\Trash\RecoverEvent;
-use Ibexa\Contracts\Core\Repository\Events\Trash\TrashEvent;
 use Ibexa\Core\Repository\SiteAccessAware\ContentService;
 use Psr\Log\LoggerInterface;
 use Smile\Ibexa\Gally\Service\Index\IndexDocument;
@@ -24,16 +24,16 @@ class OnTrashSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            TrashEvent::class => ['onTrash', -1],
+            BeforeTrashEvent::class => ['onBeforeTrash', -1],
             RecoverEvent::class => ['onRecover', -1],
         ];
     }
 
-    public function onTrash()
+    public function onBeforeTrash(BeforeTrashEvent $event): void
     {
         try {
-            $this->indexDocument->reindexAll(
-                fn ($message) => $this->logger->info($message)
+            $this->indexDocument->deleteContent(
+                $event->getLocation()->contentId
             );
         } catch (\Exception $e) {
             $this->logger->error($e);
@@ -48,7 +48,7 @@ class OnTrashSubscriber implements EventSubscriberInterface
                 $event->getTrashItem()->contentId,
                 $event->getTrashItem()->getContent()->getVersionInfo()->languageCodes
             );
-            $this->indexDocument->index(
+            $this->indexDocument->sendContent(
                 $content
             );
         } catch (\Exception $e) {

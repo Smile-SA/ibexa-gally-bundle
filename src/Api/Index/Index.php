@@ -134,4 +134,24 @@ class Index
             $indexDocument
         );
     }
+
+    /**
+     * Send data to gally.
+     *
+     * @param string $indexName
+     * @param int[] $documents
+     *
+     * @return mixed
+     */
+    public function deleteData(string $indexName, array $documents): mixed
+    {
+        $indexDocument = json_encode(["document_ids" => $documents]);
+
+        return $this->client->query(
+            \Gally\Rest\Api\IndexDocumentApi::class,
+            'removeIndexDocumentItem',
+            $indexName,
+            $indexDocument
+        );
+    }
 }
