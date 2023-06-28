@@ -109,6 +109,7 @@ class SearchFilter
 
     /**
      * Give the graphql query with all the filter set.
+     * @param string $type
      * @return string
      */
     public function toGraphQL(string $type = "filter"): string

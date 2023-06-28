@@ -147,3 +147,9 @@ services:
     Smile\Ibexa\Gally\Service\Search\Search:
         arguments:
             - '@Smile\Ibexa\Gally\Api\Search\Search'
+
+    Smile\Ibexa\Gally\Service\Search\SearchService:
+        arguments:
+            - '@Smile\Ibexa\Gally\Api\Search\Search'
+            - '@Smile\Ibexa\Gally\Api\Catalog\Catalog'
+            - '@ibexa.api.service.content'
