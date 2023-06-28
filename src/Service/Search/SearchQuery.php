@@ -2,11 +2,12 @@
 
 namespace Smile\Ibexa\Gally\Service\Search;
 
-use Smile\Ibexa\Gally\Api\Search\SearchFilter;
+use Smile\Ibexa\Gally\Service\Search\Filters\Filter;
 
 class SearchQuery
 {
-    private ?SearchFilter $searchFilter = null;
+    /** @var Filter[] */
+    private array $filters = [];
 
     public function __construct(
         private string $siteAccess,
@@ -98,17 +99,24 @@ class SearchQuery
     }
 
     /**
-     * Set a searchFilter in the search query
-     * @param SearchFilter $searchFilter
+     * Add a filter in the search query
+     * @param Filter $filter
+     * @param Filter ...$moreFilters
      * @return void
      */
-    public function setFilter(SearchFilter $searchFilter): void
+    public function addFilter(Filter $filter, Filter ...$moreFilters): void
     {
-        $this->searchFilter = $searchFilter;
+        $this->filters[] = $filter;
+        foreach ($moreFilters as $aFilter) {
+            $this->filters[] = $aFilter;
+        }
     }
 
-    public function getFilter(): ?SearchFilter
+    /**
+     * @return Filter[]
+     */
+    public function getFilter(): array
     {
-        return $this->searchFilter;
+        return $this->filters;
     }
 }

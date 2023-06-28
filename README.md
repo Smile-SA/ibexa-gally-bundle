@@ -26,39 +26,49 @@ Make sure Ibexa language code use format : 3letters-2LETTERS examples : `fre-FR`
 Search example with a controller
 
 ```php
-use Smile\Ibexa\Gally\Api\Search\SearchFilter;use Smile\Ibexa\Gally\Service\Search\SearchQuery;use Smile\Ibexa\Gally\Service\Search\SearchService;
+use Smile\Ibexa\Gally\Service\Search\Filters;
+use Smile\Ibexa\Gally\Service\Search\SearchQuery;
+use Smile\Ibexa\Gally\Service\Search\SearchService;
 
-    #[Route('/gally/search/{site}/{languageCode}/{entityType}/{text}', name: 'gally_test', methods: ['GET', 'POST'])]
-    public function index(
-        string $site,
-        string $languageCode,
-        string $entityType,
-        string $text,
-        SearchService $searchService,
-        Catalog $catalog
-    ): Response {
-        // Create a search filter
-        $searchFilter = new SearchFilter();
-        $searchFilter->setMatchFilter("path", "/67");
+public function testSearch(
+    string $site,
+    string $languageCode,
+    string $entityType,
+    string $text,
+    SearchService $searchService,
+    Catalog $catalog
+): Response {
+    // Create the search query
+    $searchQuery = new SearchQuery($site, $languageCode, $entityType, $text);
+    
+    // Add a MatchFilter
+    $searchQuery->addFilter(
+        new Filters\MatchFilter("path", "/67")
+    );
+    
+    // Get search result
+    $searchResult = $searchService->find($searchQuery);
+    dump($searchResult->getJsonRawResponse());
 
-        // Create the search query
-        $searchQuery = new SearchQuery($site, $languageCode, $entityType, $text);
-        $searchQuery->setFilter($searchFilter);
-        
-        // Get search result
-        $searchResult = $searchService->find($searchQuery);
-        dump($searchResult->getJsonRawResponse());
-
-        // Loop results and get the Ibexa content of the results
-        try {
-            foreach ($searchResult->getResults() as $result) {
-                dump($result->getIbexaContent());
-            }
-        } catch (NotFoundException | UnauthorizedException $e) {
-            dump($e);
+    // Loop results and get the Ibexa content of the results
+    try {
+        foreach ($searchResult->getResults() as $result) {
+            dump($result->getIbexaContent());
         }
+    } catch (NotFoundException | UnauthorizedException $e) {
+        dump($e);
     }
+}
 ```
+
+### Filters
+
+Existing filters : 
+- BoolFilter
+- EqualFilter
+- ExistFilter
+- MatchFilter
+- RangeFilter
 
 ## Configuration
 
