@@ -2,12 +2,12 @@
 
 namespace Smile\Ibexa\Gally\EventSubscriber;
 
-use Ibexa\Contracts\Core\Repository\Events\Content\CopyContentEvent;
+use Ibexa\Contracts\Core\Repository\Events\Content\DeleteTranslationEvent;
 use Psr\Log\LoggerInterface;
 use Smile\Ibexa\Gally\Service\Index\IndexDocument;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class OnCopySubscriber implements EventSubscriberInterface
+class OnDeleteTranslationSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly IndexDocument $indexDocument,
@@ -21,15 +21,16 @@ class OnCopySubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            CopyContentEvent::class => ['onCopyContent', 0],
+            DeleteTranslationEvent::class => ['onDeleteTranslation', 0],
         ];
     }
 
-    public function onCopyContent(CopyContentEvent $event): void
+    public function onDeleteTranslation(DeleteTranslationEvent $event): void
     {
         try {
-            $this->indexDocument->sendContent(
-                $event->getContent()
+            $this->indexDocument->deleteContent(
+                $event->getContentInfo()->id,
+                [$event->getLanguageCode()]
             );
         } catch (\Exception $e) {
             $this->logger->error($e);

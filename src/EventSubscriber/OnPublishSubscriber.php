@@ -3,15 +3,15 @@
 namespace Smile\Ibexa\Gally\EventSubscriber;
 
 use Ibexa\Contracts\Core\Repository\Events\Content\PublishVersionEvent;
+use Psr\Log\LoggerInterface;
 use Smile\Ibexa\Gally\Service\Index\IndexDocument;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class OnPublishSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly IndexDocument $indexDocument,
-        private readonly ContainerInterface $container,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -25,11 +25,16 @@ class OnPublishSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function onPublishVersion(PublishVersionEvent $event)
+    public function onPublishVersion(PublishVersionEvent $event): void
     {
-        $this->indexDocument->index(
-            $this->container->getParameter('ibexa.site_access.default'),
-            $event->getContent()
-        );
+        try {
+            $this->indexDocument->sendContent(
+                $event->getContent(),
+                $event->getTranslations()
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e);
+            dump($e);
+        }
     }
 }

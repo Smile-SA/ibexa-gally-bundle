@@ -6,17 +6,18 @@ use Gally\Rest\ApiException;
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\Log\LoggerInterface;
 use Smile\Ibexa\Gally\Service\Client\Client;
+use Smile\Ibexa\Gally\Service\Search\Filters\Filter;
 
 class Search
 {
     /**
      * Create graphql query with filter if needed.
      *
-     * @param SearchFilter|null $filter the filter
+     * @param Filter[] $filters the filter
      *
      * @return string the query
      */
-    private function getGraphqlSearchQuery(SearchFilter $filter = null): string
+    private function getGraphqlSearchQuery(array $filters = []): string
     {
         $graphql = <<<'GRAPHQL'
                     query getDocuments(
@@ -36,9 +37,19 @@ class Search
                             sort: $sort,
             GRAPHQL;
         // add filter if there is any
-        if ($filter != null) {
-            $strFilter = $filter->toGraphQL();
-            $graphql .= $strFilter;
+        if (!empty($filters)) {
+            $graphql .= <<<GRAPHQL
+            filter: {
+
+            GRAPHQL;
+
+            foreach ($filters as $filter) {
+                $graphql .= $filter->toGraphQL();
+            }
+
+            $graphql .= <<<GRAPHQL
+            }
+            GRAPHQL;
         }
         $graphql .= <<<'GRAPHQL'
                 ) {
@@ -88,18 +99,18 @@ class Search
      * Search method.
      *
      * @param array $variables
-     * @param SearchFilter|null $filter you need to build the filter before
+     * @param Filter[] $filters you need to build the filter before
      *
      * @return mixed
      */
     public function search(
         array $variables,
-        SearchFilter $filter = null
+        array $filters = []
     ): mixed {
         $response = null;
         try {
             $response = $this->clientProvider->graphqlQuery(
-                $this->getGraphqlSearchQuery($filter),
+                $this->getGraphqlSearchQuery($filters),
                 json_encode($variables)
             );
         } catch (ApiException | GuzzleException $e) {

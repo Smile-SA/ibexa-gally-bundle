@@ -13,3 +13,8 @@ ibexa_gally:
             - ezstring
             - ezrichtext
             - eztext
+            - ezfloat
+            - ezinteger
+            - ezboolean
+            - ezdate
+            - ezdatetime

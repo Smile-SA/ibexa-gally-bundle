@@ -7,6 +7,7 @@ use Gally\Rest\Model\LocalizedCatalog;
 use Gally\Rest\Model\Metadata as MetadataModel;
 use Ibexa\Contracts\Core\Repository\ContentTypeService;
 use Ibexa\Core\Repository\Values\ContentType\FieldDefinition;
+use InvalidArgumentException;
 use Smile\Ibexa\Gally\Api\Catalog\Catalog;
 use Smile\Ibexa\Gally\Api\Index\Index;
 use Smile\Ibexa\Gally\Api\Metadata\Metadata;
@@ -80,6 +81,7 @@ class GallyStructureManager
      */
     public function update(callable $logFunction): void
     {
+        $conversionMap = $this->container->getParameter('ibexa.locale.conversion_map');
         $logFunction('Creating Catalogs and localized catalogs');
         $catalogs = $this->container->getParameter('ibexa.site_access.list');
         foreach ($catalogs as $catalog) {
@@ -90,18 +92,23 @@ class GallyStructureManager
                     'code' => $catalog,
                 ])
             );
-            $languages = $this->container->getParameter('ibexa.site_access.config.' . $catalog . '.languages');
+            $languages = $this->container->getParameter("ibexa.site_access.config.$catalog.languages");
             foreach ($languages as $language) {
-                $logFunction('Create langue ' . $language);
-                // TODO : use API to change language code format
+                $logFunction('Create language ' . $language);
+                $languageCode = null;
                 // Gally format : en_GB, Ibexa format: eng-GB
-                $code = substr($language, 0, 2) . substr($language, -3);
-                $code = str_replace('-', '_', $code);
+                if (!empty($conversionMap[$language])) {
+                    $languageCode = $conversionMap[$language];
+                }
+                if ($languageCode === null) {
+                    throw new InvalidArgumentException("The code language : $language is not in the conversion map :/");
+                }
+                $logFunction('Create language ' . $language . ' code : ' . $languageCode);
                 $this->catalog->createLocalizedCatalogIfNotExists(
                     new LocalizedCatalog([
                         'name' => $catalog . ' ' . $language,
                         'code' => $catalog . '_' . $language,
-                        'locale' => $code,
+                        'locale' => $languageCode,
                         'currency' => 'EUR',
                         'catalog' => '/catalogs/' . $tmpCatalog->getId(),
                         'isDefault' => true,

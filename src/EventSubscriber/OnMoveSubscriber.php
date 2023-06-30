@@ -2,12 +2,12 @@
 
 namespace Smile\Ibexa\Gally\EventSubscriber;
 
-use Ibexa\Contracts\Core\Repository\Events\Content\CopyContentEvent;
+use Ibexa\Contracts\Core\Repository\Events\Location\MoveSubtreeEvent;
 use Psr\Log\LoggerInterface;
 use Smile\Ibexa\Gally\Service\Index\IndexDocument;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class OnCopySubscriber implements EventSubscriberInterface
+class OnMoveSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly IndexDocument $indexDocument,
@@ -21,16 +21,14 @@ class OnCopySubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            CopyContentEvent::class => ['onCopyContent', 0],
+            MoveSubtreeEvent::class => ['onMoveSubtree', 0],
         ];
     }
 
-    public function onCopyContent(CopyContentEvent $event): void
+    public function onMoveSubtree(MoveSubtreeEvent $event): void
     {
         try {
-            $this->indexDocument->sendContent(
-                $event->getContent()
-            );
+            $this->indexDocument->indexSubtree($event->getLocation()->pathString);
         } catch (\Exception $e) {
             $this->logger->error($e);
             dump($e);
