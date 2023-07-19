@@ -2,7 +2,7 @@
 
 namespace Smile\Ibexa\Gally\Api\SourceField;
 
-use Ibexa\Core\Repository\Values\ContentType\FieldDefinition;
+use eZ\Publish\Core\Repository\Values\ContentType\FieldDefinition;
 use Smile\Ibexa\Gally\Api\Metadata\Metadata;
 use Smile\Ibexa\Gally\Service\Client\Client;
 

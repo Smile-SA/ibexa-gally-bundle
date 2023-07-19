@@ -2,7 +2,7 @@
 
 namespace Smile\Ibexa\Gally\EventSubscriber;
 
-use Ibexa\Contracts\Core\Repository\Events\Content\PublishVersionEvent;
+use eZ\Publish\API\Repository\Events\Content\PublishVersionEvent;
 use Psr\Log\LoggerInterface;
 use Smile\Ibexa\Gally\Service\Index\IndexDocument;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

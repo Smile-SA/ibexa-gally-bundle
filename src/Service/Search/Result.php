@@ -2,10 +2,10 @@
 
 namespace Smile\Ibexa\Gally\Service\Search;
 
-use Ibexa\Contracts\Core\Repository\Exceptions\NotFoundException;
-use Ibexa\Contracts\Core\Repository\Exceptions\UnauthorizedException;
-use Ibexa\Contracts\Core\Repository\Values\Content\Content;
-use Ibexa\Core\Repository\SiteAccessAware\ContentService;
+use eZ\Publish\API\Repository\Exceptions\NotFoundException;
+use eZ\Publish\API\Repository\Exceptions\UnauthorizedException;
+use eZ\Publish\API\Repository\Values\Content\Content;
+use eZ\Publish\Core\Repository\ContentService;
 
 class Result
 {

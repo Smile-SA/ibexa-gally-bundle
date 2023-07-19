@@ -2,11 +2,11 @@
 
 namespace Smile\Ibexa\Gally\Service\GallyStructure;
 
+use eZ\Publish\Core\Repository\Values\ContentType\FieldDefinition;
 use Gally\Rest\Model\Catalog as CatalogModel;
 use Gally\Rest\Model\LocalizedCatalog;
 use Gally\Rest\Model\Metadata as MetadataModel;
-use Ibexa\Contracts\Core\Repository\ContentTypeService;
-use Ibexa\Core\Repository\Values\ContentType\FieldDefinition;
+use eZ\Publish\API\Repository\ContentTypeService;
 use InvalidArgumentException;
 use Smile\Ibexa\Gally\Api\Catalog\Catalog;
 use Smile\Ibexa\Gally\Api\Index\Index;
@@ -81,9 +81,9 @@ class GallyStructureManager
      */
     public function update(callable $logFunction): void
     {
-        $conversionMap = $this->container->getParameter('ibexa.locale.conversion_map');
+        $conversionMap = $this->container->getParameter('ezpublish.locale.conversion_map');
         $logFunction('Creating Catalogs and localized catalogs');
-        $catalogs = $this->container->getParameter('ibexa.site_access.list');
+        $catalogs = $this->container->getParameter('ezpublish.siteaccess.list');
         foreach ($catalogs as $catalog) {
             $logFunction('Create catalog ' . $catalog);
             $tmpCatalog = $this->catalog->createCatalogIfNotExists(
@@ -92,7 +92,7 @@ class GallyStructureManager
                     'code' => $catalog,
                 ])
             );
-            $languages = $this->container->getParameter("ibexa.site_access.config.$catalog.languages");
+            $languages = $this->container->getParameter("ezsettings.$catalog.languages");
             foreach ($languages as $language) {
                 $logFunction('Create language ' . $language);
                 $languageCode = null;

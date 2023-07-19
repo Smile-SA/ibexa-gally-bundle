@@ -2,9 +2,9 @@
 
 namespace Smile\Ibexa\Gally\EventSubscriber;
 
-use Ibexa\Contracts\Core\Repository\Events\Trash\BeforeTrashEvent;
-use Ibexa\Contracts\Core\Repository\Events\Trash\RecoverEvent;
-use Ibexa\Core\Repository\SiteAccessAware\ContentService;
+use eZ\Publish\API\Repository\Events\Trash\BeforeTrashEvent;
+use eZ\Publish\API\Repository\Events\Trash\RecoverEvent;
+use eZ\Publish\Core\Repository\ContentService;
 use Psr\Log\LoggerInterface;
 use Smile\Ibexa\Gally\Service\Index\IndexDocument;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

@@ -2,22 +2,21 @@
 
 namespace Smile\Ibexa\Gally\Service\Index;
 
-use Ibexa\Contracts\Core\FieldType\Value;
-use Ibexa\Contracts\Core\Repository\ContentTypeService;
-use Ibexa\Contracts\Core\Repository\Exceptions\BadStateException;
-use Ibexa\Contracts\Core\Repository\Exceptions\InvalidArgumentException;
-use Ibexa\Contracts\Core\Repository\Exceptions\InvalidCriterionArgumentException;
-use Ibexa\Contracts\Core\Repository\Exceptions\NotFoundException;
-use Ibexa\Contracts\Core\Repository\Exceptions\UnauthorizedException;
-use Ibexa\Contracts\Core\Repository\LocationService;
-use Ibexa\Contracts\Core\Repository\SearchService;
-use Ibexa\Contracts\Core\Repository\Values\Content\Content;
-use Ibexa\Contracts\Core\Repository\Values\Content\Location;
-use Ibexa\Contracts\Core\Repository\Values\Content\LocationQuery;
-use Ibexa\Contracts\Core\Repository\Values\Content\Query\Criterion;
-use Ibexa\Core\Repository\SiteAccessAware\ContentService;
+use eZ\Publish\API\Repository\ContentTypeService;
+use eZ\Publish\API\Repository\Exceptions\BadStateException;
+use eZ\Publish\API\Repository\Exceptions\InvalidArgumentException;
+use eZ\Publish\API\Repository\Exceptions\NotFoundException;
+use eZ\Publish\API\Repository\Exceptions\UnauthorizedException;
+use eZ\Publish\API\Repository\LocationService;
+use eZ\Publish\API\Repository\SearchService;
+use eZ\Publish\API\Repository\Values\Content\Content;
+use eZ\Publish\API\Repository\Values\Content\Location;
+use eZ\Publish\API\Repository\Values\Content\LocationQuery;
+use eZ\Publish\API\Repository\Values\Content\Query\Criterion;
+use eZ\Publish\Core\Repository\SiteAccessAware\ContentService;
 use Smile\Ibexa\Gally\Api\Catalog\Catalog;
 use Smile\Ibexa\Gally\Api\Index\Index;
+use eZ\Publish\Core\FieldType\Value;
 use stdClass;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -42,7 +41,6 @@ class IndexDocument
      * @param callable $logFunction
      *
      * @return void
-     * @throws InvalidCriterionArgumentException
      * @throws InvalidArgumentException
      * @throws BadStateException
      * @throws NotFoundException
@@ -54,7 +52,7 @@ class IndexDocument
 
         $localizedCatalogs = $this->catalog->getLocalizedCatalogsId();
         $localizedCatalogsCode = $this->catalog->getLocalizedCatalogsCode();
-        $siteaccessGroups = $this->container->getParameter('ibexa.site_access.groups');
+        $siteaccessGroups = $this->container->getParameter('ezpublish.siteaccess.groups');
 
         foreach ($localizedCatalogs as $key => $localizedCatalog) {
             $logFunction(
@@ -65,20 +63,20 @@ class IndexDocument
             $code = $catalogCode[1];
             $catalog = $catalogCode[0];
 
-            $subtree = $this->container->getParameter("ibexa.site_access.config.default.subtree_paths.content");
+            $subtree = $this->container->getParameter("ezsettings.default.subtree_paths.content");
             $logFunction("Récupère le subtree par défaut $subtree", OutputInterface::VERBOSITY_VERBOSE);
             foreach ($siteaccessGroups as $group => $siteaccess) {
                 if (
                     in_array($catalog, $siteaccess) && $this->container->hasParameter(
-                        "ibexa.site_access.config.$group.subtree_paths.content"
+                        "ezsettings.$group.subtree_paths.content"
                     )
                 ) {
-                    $subtree = $this->container->getParameter("ibexa.site_access.config.$group.subtree_paths.content");
+                    $subtree = $this->container->getParameter("ezsettings.$group.subtree_paths.content");
                     $logFunction("Récupère le subtree du groupe $group : $subtree", OutputInterface::VERBOSITY_VERBOSE);
                 }
             }
-            if ($this->container->hasParameter("ibexa.site_access.config.$catalog.subtree_paths.content")) {
-                $subtree = $this->container->getParameter("ibexa.site_access.config.$catalog.subtree_paths.content");
+            if ($this->container->hasParameter("ezsettings.$catalog.subtree_paths.content")) {
+                $subtree = $this->container->getParameter("ezsettings.$catalog.subtree_paths.content");
                 $logFunction(
                     "Récupère le subtree du siteaccess $catalog : $subtree",
                     OutputInterface::VERBOSITY_VERBOSE
@@ -328,40 +326,54 @@ class IndexDocument
     ): stdClass {
         $class = get_class($value);
         switch ($class) {
-            case 'Ibexa\Core\FieldType\Date\Value':
-                /** @var \Ibexa\Core\FieldType\Date\Value $value */
-                $date = $value->date->format('Y-m-d H:i:s');
-                $obj->$typeIdentifier = $date;
+            case 'eZ\Publish\Core\FieldType\Date\Value':
+                /** @var \eZ\Publish\Core\FieldType\Date\Value $value */
+                if (!empty($value->date)) {
+                    $date = $value->date->format('Y-m-d H:i:s');
+                    $obj->$typeIdentifier = $date;
+                }
                 break;
-            case 'Ibexa\Core\FieldType\DateAndTime\Value':
-                /** @var \Ibexa\Core\FieldType\DateAndTime\Value $value */
-                $datetime = $value->value->format('Y-m-d H:i:s');
-                $obj->$typeIdentifier = $datetime;
+            case 'eZ\Publish\Core\FieldType\DateAndTime\Value':
+                /** @var \eZ\Publish\Core\FieldType\DateAndTime\Value $value */
+                if (!empty($value->value)) {
+                    $datetime = $value->value->format('Y-m-d H:i:s');
+                    $obj->$typeIdentifier = $datetime;
+                }
                 break;
-            case 'Ibexa\Core\FieldType\Float\Value':
-                /** @var \Ibexa\Core\FieldType\Float\Value $value */
-                $float = floatval($value->value);
-                $obj->$typeIdentifier = $float;
+            case 'eZ\Publish\Core\FieldType\Float\Value':
+                /** @var \eZ\Publish\Core\FieldType\Float\Value $value */
+                if (!empty($value->value)) {
+                    $float = floatval($value->value);
+                    $obj->$typeIdentifier = $float;
+                }
                 break;
-            case 'Ibexa\Core\FieldType\Integer\Value':
-                /** @var \Ibexa\Core\FieldType\Integer\Value $value */
-                $int = intval($value->value);
-                $obj->$typeIdentifier = $int;
+            case 'eZ\Publish\Core\FieldType\Integer\Value':
+                /** @var \eZ\Publish\Core\FieldType\Integer\Value $value */
+                if (!empty($value->value)) {
+                    $int = intval($value->value);
+                    $obj->$typeIdentifier = $int;
+                }
                 break;
-            case 'Ibexa\Core\FieldType\Checkbox\Value':
-                /** @var \Ibexa\Core\FieldType\Checkbox\Value $value */
-                $bool = $value->bool;
-                $obj->$typeIdentifier = $bool;
+            case 'eZ\Publish\Core\FieldType\Checkbox\Value':
+                /** @var \eZ\Publish\Core\FieldType\Checkbox\Value $value */
+                if (!empty($value->bool)) {
+                    $bool = $value->bool;
+                    $obj->$typeIdentifier = $bool;
+                }
                 break;
-            case 'Ibexa\Core\FieldType\TextLine\Value':
-            case 'Ibexa\Core\FieldType\TextBlock\Value':
-                /** @var \Ibexa\Core\FieldType\TextBlock\Value $value */
-                $text = $value->text;
-                $obj->$typeIdentifier = $text;
+            case 'eZ\Publish\Core\FieldType\TextLine\Value':
+            case 'eZ\Publish\Core\FieldType\TextBlock\Value':
+                /** @var \eZ\Publish\Core\FieldType\TextBlock\Value $value */
+                if (!empty($value->text)) {
+                    $text = $value->text;
+                    $obj->$typeIdentifier = $text;
+                }
                 break;
-            case 'Ibexa\FieldTypeRichText\FieldType\RichText\Value':
-                /** @var \Ibexa\FieldTypeRichText\FieldType\RichText\Value $value */
-                $obj->$typeIdentifier = $value->xml->textContent;
+            case 'EzSystems\EzPlatformRichText\eZ\FieldType\RichText\Value':
+                /** @var \EzSystems\EzPlatformRichText\eZ\FieldType\RichText\Value $value */
+                if (!empty($value->xml)) {
+                    $obj->$typeIdentifier = $value->xml->textContent;
+                }
                 break;
             default:
         }
@@ -391,13 +403,13 @@ class IndexDocument
      */
     private function getSiteAccessFromContent(string $pathString): array
     {
-        $siteAccessList = $this->container->getParameter('ibexa.site_access.list');
-        $siteAccessGroups = $this->container->getParameter('ibexa.site_access.groups');
+        $siteAccessList = $this->container->getParameter('ezpublish.siteaccess.list');
+        $siteAccessGroups = $this->container->getParameter('ezpublish.siteaccess.groups');
         $contentSubtree = $pathString;
         $siteAccessesToIndex = [];
         foreach ($siteAccessGroups as $group => $siteAccessFromGroup) {
-            if ($this->container->hasParameter("ibexa.site_access.config.$group.subtree_paths.content")) {
-                $subtree = $this->container->getParameter("ibexa.site_access.config.$group.subtree_paths.content");
+            if ($this->container->hasParameter("ezsettings.$group.subtree_paths.content")) {
+                $subtree = $this->container->getParameter("ezsettings.$group.subtree_paths.content");
                 if (str_contains($contentSubtree, $subtree)) {
                     foreach ($siteAccessFromGroup as $siteAccess) {
                         $siteAccessesToIndex[] = $siteAccess;
@@ -406,9 +418,9 @@ class IndexDocument
             }
         }
         foreach ($siteAccessList as $siteAccess) {
-            if ($this->container->hasParameter("ibexa.site_access.config.$siteAccess.subtree_paths.content")) {
+            if ($this->container->hasParameter("ezsettings.$siteAccess.subtree_paths.content")) {
                 $subtree = $this->container->getParameter(
-                    "ibexa.site_access.config.$siteAccess.subtree_paths.content"
+                    "ezsettings.$siteAccess.subtree_paths.content"
                 );
                 if (str_contains($contentSubtree, $subtree)) {
                     $siteAccessesToIndex[] = $siteAccess;

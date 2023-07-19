@@ -2,8 +2,7 @@
 
 namespace Smile\Ibexa\Gally\EventSubscriber;
 
-use Ibexa\Contracts\Core\Repository\Events\Location\MoveSubtreeEvent;
-use Ibexa\Contracts\Core\Repository\Events\Location\SwapLocationEvent;
+use eZ\Publish\API\Repository\Events\Location\SwapLocationEvent;
 use Psr\Log\LoggerInterface;
 use Smile\Ibexa\Gally\Service\Index\IndexDocument;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

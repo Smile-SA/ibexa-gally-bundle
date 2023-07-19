@@ -55,7 +55,7 @@ services:
             - { name: kernel.event_subscriber }
         arguments:
             - '@Smile\Ibexa\Gally\Service\Index\IndexDocument'
-            - '@ibexa.api.service.content'
+            - '@ezpublish.api.service.content'
             - '@logger'
 
     Smile\Ibexa\Gally\EventSubscriber\OnMoveSubscriber:
@@ -122,7 +122,7 @@ services:
             - '@Smile\Ibexa\Gally\Api\SourceField\SourceField'
             - '@Smile\Ibexa\Gally\Service\Index\IndexableContentProvider'
             - '@Smile\Ibexa\Gally\Service\Metadata\SourceFieldMappingProvider'
-            - '@ibexa.api.service.content_type'
+            - '@ezpublish.api.service.content_type'
             - '@service_container'
 
     Smile\Ibexa\Gally\Service\Index\IndexableContentProvider:
@@ -134,10 +134,10 @@ services:
             - '@Smile\Ibexa\Gally\Api\Index\Index'
             - '@Smile\Ibexa\Gally\Api\Catalog\Catalog'
             - '@Smile\Ibexa\Gally\Service\Index\IndexableContentProvider'
-            - '@ibexa.api.service.content_type'
-            - '@ibexa.api.service.search'
-            - '@ibexa.api.service.content'
-            - '@ibexa.api.service.location'
+            - '@ezpublish.api.service.content_type'
+            - '@ezpublish.api.service.search'
+            - '@ezpublish.api.service.content'
+            - '@ezpublish.api.service.location'
             - '@service_container'
 
     Smile\Ibexa\Gally\Service\Metadata\SourceFieldMappingProvider:
@@ -152,4 +152,4 @@ services:
         arguments:
             - '@Smile\Ibexa\Gally\Api\Search\Search'
             - '@Smile\Ibexa\Gally\Api\Catalog\Catalog'
-            - '@ibexa.api.service.content'
+            - '@ezpublish.api.service.content'
