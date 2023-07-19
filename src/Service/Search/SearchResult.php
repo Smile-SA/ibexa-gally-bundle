@@ -2,7 +2,7 @@
 
 namespace Smile\Ibexa\Gally\Service\Search;
 
-use eZ\Publish\Core\Repository\ContentService;
+use eZ\Publish\Core\Repository\SiteAccessAware\ContentService;
 
 class SearchResult
 {

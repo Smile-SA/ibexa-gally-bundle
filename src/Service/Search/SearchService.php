@@ -2,7 +2,7 @@
 
 namespace Smile\Ibexa\Gally\Service\Search;
 
-use eZ\Publish\Core\Repository\ContentService;
+use eZ\Publish\Core\Repository\SiteAccessAware\ContentService;
 use Smile\Ibexa\Gally\Api\Catalog\Catalog;
 use Smile\Ibexa\Gally\Api\Search\Search;
 

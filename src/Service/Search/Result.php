@@ -5,7 +5,7 @@ namespace Smile\Ibexa\Gally\Service\Search;
 use eZ\Publish\API\Repository\Exceptions\NotFoundException;
 use eZ\Publish\API\Repository\Exceptions\UnauthorizedException;
 use eZ\Publish\API\Repository\Values\Content\Content;
-use eZ\Publish\Core\Repository\ContentService;
+use eZ\Publish\Core\Repository\SiteAccessAware\ContentService;
 
 class Result
 {
