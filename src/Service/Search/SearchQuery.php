@@ -3,11 +3,15 @@
 namespace Smile\Ibexa\Gally\Service\Search;
 
 use Smile\Ibexa\Gally\Service\Search\Filters\Filter;
+use Smile\Ibexa\Gally\Service\Search\Sort\SortDirection;
+use Smile\Ibexa\Gally\Service\Search\Sort\SortOrder;
 
 class SearchQuery
 {
     /** @var Filter[] */
     private array $filters = [];
+
+    private ?SortOrder $sortOrder = null;
 
     public function __construct(
         private string $siteAccess,
@@ -74,12 +78,18 @@ class SearchQuery
      */
     public function getVariables(): array
     {
-        return [
+        $variables = [
             'entityType' => $this->entityType,
             'currentPage' => $this->currentPage,
             'pageSize' => $this->pageSize,
             'search' => $this->searchText,
         ];
+
+        if ($this->sortOrder !== null) {
+            $variables["sort"] = $this->sortOrder->getVariable();
+        }
+
+        return $variables;
     }
 
     /**
@@ -118,5 +128,10 @@ class SearchQuery
     public function getFilter(): array
     {
         return $this->filters;
+    }
+
+    public function setSortOrder(string $field, SortDirection $sortDirection): void
+    {
+        $this->sortOrder = new SortOrder($field, $sortDirection);
     }
 }

@@ -22,12 +22,12 @@ class EqualFilter implements Filter
                 equalFilter: {
                     field: "$this->field",
                 GRAPHQL;
-        if (is_array($this->value)) {
+        if (is_string($this->value)) {
             $graphql .= <<<GRAPHQL
                         eq: "$this->value";
                     GRAPHQL;
         }
-        if (is_string($this->value)) {
+        if (is_array($this->value)) {
             $graphql .= <<<GRAPHQL
                         in: [
                     GRAPHQL;
