@@ -7,16 +7,16 @@ class BoolFilter implements Filter
     /**
      * Bool filter with must, should or not
      * It compare to another filter, example :
-     * not(EqualFilter)
+     * should([matchFilter, anotherMatchFilter])
      *
-     * @param Filter|null $must
-     * @param Filter|null $should
-     * @param Filter|null $not
+     * @param Filter[]|null $must
+     * @param Filter[]|null $should
+     * @param Filter[]|null $not
      */
     public function __construct(
-        private readonly ?Filter $must = null,
-        private readonly ?Filter $should = null,
-        private readonly ?Filter $not = null,
+        private readonly ?array $must = null,
+        private readonly ?array $should = null,
+        private readonly ?array $not = null,
     ) {
     }
 
@@ -26,13 +26,25 @@ class BoolFilter implements Filter
                 boolFilter: {
                 GRAPHQL;
         if (null !== $this->must) {
-            $graphql .= $this->must->toGraphQL();
+            $graphql .= "_must: [";
+            foreach ($this->must as $filter) {
+                $graphql .= "{".$filter->toGraphQL()."}";
+            }
+            $graphql .= "]";
         }
         if (null !== $this->should) {
-            $graphql .= $this->should->toGraphQL();
+            $graphql .= "_should: [";
+            foreach ($this->should as $filter) {
+                $graphql .= "{".$filter->toGraphQL()."}";
+            }
+            $graphql .= "]";
         }
         if (null !== $this->not) {
-            $graphql .= $this->not->toGraphQL();
+            $graphql .= "_not: [";
+            foreach ($this->not as $filter) {
+                $graphql .= "{".$filter->toGraphQL()."}";
+            }
+            $graphql .= "]";
         }
         $graphql .= <<<GRAPHQL
                 }
