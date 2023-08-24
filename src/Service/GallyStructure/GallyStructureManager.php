@@ -92,7 +92,14 @@ class GallyStructureManager
                     'code' => $catalog,
                 ])
             );
-            $languages = $this->container->getParameter("ibexa.site_access.config.$catalog.languages");
+            if ($tmpCatalog === null) {
+                $logFunction('Impossible to create catalog ' . $catalog);
+                continue;
+            }
+            $languages = [];
+            if ($this->container->hasParameter("ibexa.site_access.config.$catalog.languages")) {
+                $languages = $this->container->getParameter("ibexa.site_access.config.$catalog.languages");
+            }
             foreach ($languages as $language) {
                 $logFunction('Create language ' . $language);
                 $languageCode = null;
@@ -104,7 +111,7 @@ class GallyStructureManager
                     throw new InvalidArgumentException("The code language : $language is not in the conversion map :/");
                 }
                 $logFunction('Create language ' . $language . ' code : ' . $languageCode);
-                $this->catalog->createLocalizedCatalogIfNotExists(
+                $localizedCatalog = $this->catalog->createLocalizedCatalogIfNotExists(
                     new LocalizedCatalog([
                         'name' => $catalog . ' ' . $language,
                         'code' => $catalog . '_' . $language,
@@ -114,6 +121,9 @@ class GallyStructureManager
                         'isDefault' => true,
                     ])
                 );
+                if ($localizedCatalog === null) {
+                    $logFunction('Impossible to create localized catalog ' . $language . ' code : ' . $languageCode);
+                }
             }
         }
 

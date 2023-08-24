@@ -74,12 +74,14 @@ class Catalog
                     'postCatalogCollection',
                     $input
                 );
-                $this->catalogsByCode[$catalog->getCode()] = $catalog;
-                $this->catalogsByCode[$catalog->getId()] = $catalog;
+                if ($catalog !== null) {
+                    $this->catalogsByCode[$catalog->getCode()] = $catalog;
+                    $this->catalogsById[$catalog->getId()] = $catalog;
+                }
             }
         }
 
-        return $this->catalogsByCode[$input->getCode()];
+        return $this->catalogsByCode[$input->getCode()] ?? null;
     }
 
     public function createLocalizedCatalogIfNotExists(LocalizedCatalog $input)
@@ -101,12 +103,24 @@ class Catalog
                     'postLocalizedCatalogCollection',
                     $input
                 );
-                $this->localizedCatalogsByCode[$localizedCatalog->getCode()] = $localizedCatalog;
-                $this->localizedCatalogsByCode[$localizedCatalog->getId()] = $localizedCatalog;
+                // Some locale doesn't exist in Gally so use fallback en_GB
+                if ($localizedCatalog === null) {
+                    $input->setLocalName($input->getLocale());
+                    $input->setLocale('en_GB');
+                    $localizedCatalog = $this->client->query(
+                        \Gally\Rest\Api\LocalizedCatalogApi::class,
+                        'postLocalizedCatalogCollection',
+                        $input
+                    );
+                }
+                if ($localizedCatalog !== null) {
+                    $this->localizedCatalogsByCode[$localizedCatalog->getCode()] = $localizedCatalog;
+                    $this->localizedCatalogsById[$localizedCatalog->getId()] = $localizedCatalog;
+                }
             }
         }
 
-        return $this->localizedCatalogsByCode[$input->getCode()];
+        return $this->localizedCatalogsByCode[$input->getCode()] ?? null;
     }
 
     /**
