@@ -32,9 +32,9 @@ class Authentication
      * Get JWT token for using the Gally API.
      *
      * @return string
-     * @throws LogicException|GuzzleException
+     * @throws LogicException
      *
-     * @throws ApiException
+     * @throws ApiException|GuzzleException
      */
     public function getAuthenticationToken(): string
     {
@@ -43,7 +43,7 @@ class Authentication
             'email' => $this->credentialProvider->getEmail(),
             'password' => $this->credentialProvider->getPassword(),
         ];
-        $httpBody = \GuzzleHttp\Utils::jsonEncode($body);
+        $httpBody = \json_encode($body);
 
         $request = new Request(
             'POST',
@@ -67,7 +67,7 @@ class Authentication
         }
 
         try {
-            $response = \GuzzleHttp\Utils::jsonDecode($responseJson->getBody()->getContents());
+            $response = \json_decode($responseJson->getBody()->getContents());
 
             return (string)$response->token;
         } catch (\Exception $e) {
