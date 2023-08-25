@@ -36,7 +36,11 @@ class Catalog
     private function getCatalogs(): void
     {
         /** @var \Gally\Rest\Model\CatalogCatalogRead[] $catalogs */
-        $catalogs = $this->client->query(\Gally\Rest\Api\CatalogApi::class, 'getCatalogCollection');
+        $catalogs = $this->client->query(
+            \Gally\Rest\Api\CatalogApi::class,
+            'getCatalogCollection',
+            pagination: false
+        );
 
         foreach ($catalogs as $catalog) {
             $this->catalogsByCode[$catalog->getCode()] = $catalog;
@@ -46,7 +50,8 @@ class Catalog
         /** @var \Gally\Rest\Model\LocalizedCatalogCatalogRead[] $localizedCatalogs */
         $localizedCatalogs = $this->client->query(
             \Gally\Rest\Api\LocalizedCatalogApi::class,
-            'getLocalizedCatalogCollection'
+            'getLocalizedCatalogCollection',
+            pagination: false
         );
 
         foreach ($localizedCatalogs as $localizedCatalog) {
