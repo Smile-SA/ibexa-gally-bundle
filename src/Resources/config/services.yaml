@@ -139,6 +139,8 @@ services:
             - '@ibexa.api.service.content'
             - '@ibexa.api.service.location'
             - '@service_container'
+            - '@ibexa.config.resolver'
+            - '@ibexa.persistence.connection'
 
     Smile\Ibexa\Gally\Service\Metadata\SourceFieldMappingProvider:
         arguments:
