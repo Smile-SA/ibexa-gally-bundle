@@ -7,8 +7,6 @@ ibexa_gally:
         curl_resolve: gally.local:443:172.16.0.1
     debug: false
     indexable_content:
-        content_types:
-            - test_page
         field_types:
             - ezstring
             - ezrichtext

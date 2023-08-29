@@ -122,6 +122,18 @@ class IndexDocument
         $query = $this->connection->createQueryBuilder();
         $expr = $query->expr();
         $query
+            ->select('COUNT(c.id)')
+            ->from('ezcontentobject', 'c')
+            ->join('c', 'ezcontentclass', 'cl', 'cl.id = c.contentclass_id')
+            ->where('c.status = :status')
+            ->andWhere($expr->in('cl.identifier', $contentTypesConfigSQL))
+            ->setParameter('status', ContentInfo::STATUS_PUBLISHED, ParameterType::INTEGER);
+        $maxCount = $query->execute()->fetchOne();
+        $logFunction($maxCount." contents to index.");
+
+        $query = $this->connection->createQueryBuilder();
+        $expr = $query->expr();
+        $query
             ->select('c.id')
             ->from('ezcontentobject', 'c')
             ->join('c', 'ezcontentclass', 'cl', 'cl.id = c.contentclass_id')
@@ -131,35 +143,73 @@ class IndexDocument
 
         $statement = $query->execute()->getIterator();
 
+        $count = 0;
         foreach ($statement as $item) {
             $content = null;
             try {
                 $content = $this->contentService->loadContent($item["id"]);
-                foreach ($indexList as $indexes) {
+                $logFunction("$count/$maxCount - Indexing ".$content->getName());
+                $count++;
+                foreach ($indexList as $key => $indexes) {
                     foreach ($indexes as $index) {
                         if (str_contains(
-                            $indexes["subtree"],
-                            $content->getContentInfo()->getMainLocation()->pathString
+                            $content->getVersionInfo()->getContentInfo()->getMainLocation()->pathString,
+                            $indexes["subtree"]
                         )) {
                             $contentType = $content->getContentType()->identifier;
-                            $indexes["contents"][$contentType][] = $content;
+                            $indexList[$key]["contents"][$contentType][] = $content;
                         }
                     }
                 }
             } catch (\Ibexa\Core\Base\Exceptions\UnauthorizedException $exception) {
                 dump($exception);
             }
+            if ($count % 100 === 0) {
+                $logFunction("Sending last 100 content before continuing");
+                $sending = 0;
+                foreach ($indexList as $indexes) {
+                    $logFunction("$sending/".count($indexList)." sending...");
+                    $sending++;
+                    foreach ($indexes["index"] as $index) {
+                        foreach ($contentTypesConfig as $contentType) {
+                            if (empty($indexes["contents"][$contentType])) {
+                                $logFunction("Skipping $contentType on $index because no contents...");
+                                continue;
+                            }
+
+                            $logFunction(
+                                'Sending '.count(
+                                    $indexes["contents"][$contentType]
+                                ).' contents '.$contentType." to $index"
+                            );
+                            $this->sendContentsToIndex(
+                                $index,
+                                $indexes["contents"][$contentType],
+                                $indexes["code"]
+                            );
+                        }
+                    }
+                }
+                foreach ($indexList as $key => $indexes) {
+                    foreach ($contentTypesConfig as $contentType) {
+                        unset($indexList[$key]["contents"][$contentType]);
+                        $indexList[$key]["contents"][$contentType] = [];
+                    }
+                }
+            }
         }
+        $logFunction("Final sending to gally");
 
         foreach ($indexList as $indexes) {
             foreach ($indexes["index"] as $index) {
                 foreach ($contentTypesConfig as $contentType) {
+                    if (empty($indexes["contents"][$contentType])) {
+                        $logFunction("Skipping $contentType on $index because no contents...");
+                        continue;
+                    }
 
                     $logFunction('Sent '.count($indexes["contents"][$contentType]).' contents '.$contentType);
-                    $result = $this->sendContentsToIndex($index, $indexes["contents"][$contentType], $indexes["code"]);
-                    $logFunction(
-                        'Result '.$result
-                    );
+                    $this->sendContentsToIndex($index, $indexes["contents"][$contentType], $indexes["code"]);
 
                     $logFunction(
                         'Install index '.$index
@@ -260,6 +310,9 @@ class IndexDocument
                 break;
             case 'Ibexa\Core\FieldType\DateAndTime\Value':
                 /** @var \Ibexa\Core\FieldType\DateAndTime\Value $value */
+                if ($value->value === null) {
+                    break;
+                }
                 $datetime = $value->value->format('Y-m-d H:i:s');
                 $obj->$typeIdentifier = $datetime;
                 break;
